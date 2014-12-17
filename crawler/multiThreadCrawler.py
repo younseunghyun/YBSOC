@@ -42,8 +42,7 @@ class multithreadCrawler:
         for s in range(1,self.thread_number+1):
             Process(target=self.worker, args=(self.stack,self.output,)).start()
         Process(target=self.urlGather, args=(self.keyword,self.ini_date,self.e_date,self.stack,)).start()
-        a = dataSaver.dataSaving
-        Process(target=a, args=(self.output,)).start()
+        Process(target=self.dataSaving, args=(self.output,)).start()
 
     
     
