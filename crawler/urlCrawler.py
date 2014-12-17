@@ -42,5 +42,5 @@ def blogUrl(keyword,startDate,endDate,urlStack):
                     blog_url=blog_tmp.find('span','inline').text.split(' ')[1]
                     blog_short = blog_tmp.find('dd','sh_blog_passage').text.split('...')
                     #print(blog_url)
-                    urlStack.put([blog_url,blog_short,blog_date])
+                    urlStack.put([blog_url,blog_short,blog_date,query])
             start_date_fm=next_date_fm
