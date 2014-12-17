@@ -19,11 +19,11 @@ def blogContextGather(blogInfo):
         else:
             blog_text = ''
         if blog_text == '':
-            return dict({'blog_url' : blog_url, 'blog_short' : blog_short ,'blog_date' : blog_date, 'blog_text' : '')
+            return dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : '')
         else:
-            return dict({'blog_url' : blog_url, 'blog_short' : blog_short ,'blog_date' : blog_date, 'blog_text' : blog_text)
+            return dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : blog_text)
     except Exception as e:
-        return dict({'blog_url' : blog_url, 'blog_short' : blog_short ,'blog_date' : blog_date, 'blog_text' : '')
+        return dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : '')
         #print(e,blog_url)
 
 
