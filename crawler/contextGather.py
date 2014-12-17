@@ -19,13 +19,11 @@ def blogContextGather(blogInfo):
         else:
             blog_text = ''
         if blog_text == '':
-            return 
+            return dict({'blog_url' : blog_url, 'blog_short' : blog_short ,'blog_date' : blog_date, 'blog_text' : '')
         else:
-            aaa.write(blog_url+'\n')
-            print(blog_url)
-            return 
+            return dict({'blog_url' : blog_url, 'blog_short' : blog_short ,'blog_date' : blog_date, 'blog_text' : blog_text)
     except Exception as e:
-        return
+        return dict({'blog_url' : blog_url, 'blog_short' : blog_short ,'blog_date' : blog_date, 'blog_text' : '')
         #print(e,blog_url)
 
 
