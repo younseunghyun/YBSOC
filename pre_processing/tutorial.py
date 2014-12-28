@@ -51,7 +51,7 @@ print("---------------------------------------------------\n")
 
 #remove numeric tokens from text(not alphanumeric)
 input("3. remove numeric tokens from text(not alphanumeric) example. Press any key.")
-s3 = rm_numbers(type="text", text=sample)
+s3 = rm_numbers(text=sample, type="text")
 print(s3)
 print("---------------------------------------------------\n")
 

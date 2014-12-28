@@ -28,7 +28,7 @@ def rm_specials(text, replace = " ", emoticon = False, exceptions = ""):
     
 
 #When input type is token, the function returns empty string("") if the token is integer or float format.
-def rm_numbers(type, text, replace = " "):     #type can be 'text' or 'token'
+def rm_numbers(text, type, replace = " "):     #type can be 'text' or 'token'
     if type == "text":
         regex_str = "( [0-9]+ | [0-9]+\.[0-9]+ )"
     elif type == "token":
@@ -61,15 +61,15 @@ ubuntu 시스템의 상황을 알려주는 시스템 모니터 333에 이 기능
     
     #rm_specials(text[, replace(" "), emoticon(False), exceptions("")])
     print("2. remove special character")
-    result2 = rm_specials(text = result1, replace = " ", emoticon = True, exceptions = ".,")      #exceptions format: string
+    result2 = rm_specials(text = result1, replace = " ", emoticon = True, exceptions = ".,")
     rm_specials(result1)  #this is the simplest way
     print(result2)
     
     
-    #rm_numbers(type, text[, replace(" ")])
+    #rm_numbers(text, type[, replace(" ")])
     #'type' parameter can be 'text' or 'token'.
     print("3. remove numbers")
-    result3 = rm_numbers(type = "text", text = result2, replace = "-")         #exceptions format: string(sep="|")
+    result3 = rm_numbers(text = result2, type = "text", replace = "-")
     print(result3)
     
     for i in result2.split(" "):
