@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>korean map with d3.js</title>
+	
+	<link rel="stylesheet" type="text/css" href="./css/index.css" />
+	<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=b11a473efe4a87711792bad8d6a90144"></script>
+	<script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?1.29.1"></script>
+	<!-- demo :   http://lynn.yonsei.ac.kr/map_d3 -->
+
+</head>
+
+<body>
+<h3>Korean map with Naver map API + d3.js + external data</h3>
+	<div id="map"></div>
+	<button onclick="javascript:goPanning();">위치 이동(20px to right)</button>
+	<button onclick="javascript:revertPanning();">위치 원래대로</button>
+	<div id="desc">
+		<br />
+		marker click: facility location information<br />marker mouseover: facility name<br />
+		circle color: regional group(korean gu)<br />circle size: specific value(library collection amount)
+	</div>
+	<script type="text/javascript" src="./js/data.js"></script>
+	<script type="text/javascript" src="./js/naver_map.js"></script>
+	
+</body>
+</html>
