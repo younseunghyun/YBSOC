@@ -1,12 +1,13 @@
 from moduleControl import *
 
-def blogContextGather(blogInfo):
+def blogContextGather(blogInfo,outPutQue):
     
     blog_url = blogInfo[0]
     blog_short =  blogInfo[1]
     blog_date = blogInfo[2]
+    print(blog_date)
     keyword  = [s for s in blogInfo[3].split(' | ')]
-    #print(blog_url)
+    #print(blog_url,'contextGater')
     try:
         if 'naver.com' in blog_url:
             blog_text =  naver_blog(blog_url)
@@ -19,11 +20,12 @@ def blogContextGather(blogInfo):
         else:
             blog_text = ''
         if blog_text == '':
-            return dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : '', 'Keyword' : keyword})
+            return outPutQue.put(dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : '', 'Keyword' : keyword}))
         else:
-            return dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : blog_text, 'Keyword' : keyword})
+            return outPutQue.put(dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : '', 'Keyword' : keyword}))
     except Exception as e:
-        return dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : '', 'Keyword' : keyword})
+        print(e)
+        return outPutQue.put(dict({'Source' : blog_url, 'Date' : blog_date, 'Context' : '', 'Keyword' : keyword}))
         #print(e,blog_url)
 
 

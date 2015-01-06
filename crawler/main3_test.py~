@@ -1,7 +1,7 @@
 __author__ = 'jack'
 from multiprocessing import Process, Queue, Pool
 from urlCrawler import blogUrl
-from dataSaver import dataSaver
+from dataSaver2 import dataSaver
 from multiThreadCrawler import multithreadCrawler
 from contextGather import blogContextGather
 
