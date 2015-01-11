@@ -16,7 +16,8 @@ class multithreadCrawler:
         self.contextGather = None
         self.urlGather = None
         self.dataSaver = None
-        
+        self.table_name =''
+        self.db_name =''
 
     def __repr__(self):
         return 'keyword : %s ini_date : %s end_date : %s thread_number : %s contextGather : %s urlGather : %s dataSaver : %s' %(self.keyword,self.ini_date,self.e_date,self.thread_number, self.contextGather, self.urlGather, self.dataSaver)
@@ -31,8 +32,8 @@ class multithreadCrawler:
                     if inputQueue.empty():
                         break
                     else:
-                        outputQueue.put(self.contextGather(inputQueue.get()))
-                outputQueue.put(self.contextGather(inputQueue.get()))
+                        self.contextGather(inputQueue.get(),outputQueue)
+                self.contextGather(inputQueue.get(),outputQueue)
                 #print(outputQueue.qsize())
             except Exception as e:
                 print(e)
@@ -41,8 +42,13 @@ class multithreadCrawler:
     def run(self):
         for s in range(1,self.thread_number+1):
             Process(target=self.worker, args=(self.stack,self.output,)).start()
+        a=Process(target=self.dataSaver, args=(self.table_name, self.db_name, self.output,))
+        
+        a.start()
         Process(target=self.urlGather, args=(self.keyword,self.ini_date,self.e_date,self.stack,)).start()
-        Process(target=self.dataSaving, args=(self.output,)).start()
+        
+
+
 
     
     

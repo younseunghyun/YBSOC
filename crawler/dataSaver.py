@@ -1,22 +1,35 @@
 import time
+import pymongo
+
 class dataSaver:
 
-    def dataSaving(dataQueue):
+    def __init__(self):
+        self.table_name = ''
+        self.db_name ='crawler'
 
-        def toFile(data):
-            print(data['Source'])
-            open('./'+data['Source']+'.txt','w').write(str(data))
+    def dataSaving(table_name,db_name, dataQueue):
 
+        total =0
+        
+        def toFile(table_name,db_name,data,total):
+            con = pymongo.MongoClient()
+            collection = con[db_name][table_name]
+            collection.insert(data)
+            total +=1
+            print(data['Date'],'dataSaver',dataQueue.qsize(),total)
+
+            
+        time.sleep(10)
         while True:
-            print('hehehe')
             try:
-                if dataQueue.empty():
-                    time.sleep(10)
-                    if dataQueue.empty():
-                        break
-                    else:
-                        toFile(dataQueue.get())
-                toFile(dataQueue.get())
+                # if dataQueue.empty():
+                #     print('waiting')
+                    
+                #     if dataQueue.empty():
+                #         break
+                #     else:
+                #         toFile(dataQueue.get())
+                toFile(table_name, db_name, dataQueue.get(),total)
             except Exception as e:
                 print(e)
                 continue
