@@ -1,4 +1,5 @@
 __author__ = "lynn"
+__email__ = "lynnn.hong@gmail.com"
 
 """
 This is for crawling facebook text and meta information. A short example is provided in main function.
@@ -9,115 +10,97 @@ This is for crawling facebook text and meta information. A short example is prov
 This is originally under python27 but working on python34 also.
 """
 
-import facebook
+import facebook 
 import requests
+import os
+import json
+import time
+
+from easy_db import easy_mysql, insert_mysql
+
+from fb_post import get_post
+from fb_sub_object import get_sub_object
+from fb_access_token import get_access_token
 
 
-
-def get_sub_object(object, type):
-    sub_list = list()
-    items = object['data']
-    
-    while True:
-        try:
-            for item in items:
-                if type == "comment":
-                    c_id = item['id']
-                    c_created_time = item['created_time']
-                    c_usr_id = item['from']['id']
-                    c_usr_name = item['from']['name']
-                    c_message = itme['message']
-                    c_like_cnt = item['like_count']
-                    sub_list.append(tuple(c_id, c_created_time, c_usr_id,c_usr_name, c_message, c_like_cnt))
-                elif type == "like":
-                    sub_list.append(tuple(item['id'], item['name']))
-            items = requests.get(items['paging']['next']).json()
-        except KeyError:
-            break
-    return(sub_list)
-
-
-
-
-
-def get_post(post, fetching_comment, fetching_likes, save_location):
-    '''for key in post.keys():
-        print("%s : %s" % (key, post[key]))
-    print("---   post end   ---")'''
-    
-    result = dict()
-    
-    result['object_id'] = post['object_id']
-    try:
-        result['created_time'] = post['updated_time']
-    except KeyError:
-        result['created_time'] = post['created_time']
-    result['message'] = post['message']
-    result['share_cnt'] = post['shares']['count']
-    
-    if fetching_comment == True:
-        result['comments'] = get_sub_object(object = post['comments'], type = "comment")
-    if fetching_likes == True:
-        result['likes'] = get_sub_object(object = post['likes'], type = "like")
-            
-    return(result)
-    #or doing something here such as storing using save_location
-
-
-
-def get_all_posts(graph, fetching_comment, fetching_likes, save_location):
-    posts = graph.get_connections(profile['id'], 'posts')
-    while True:
-        try:
-            [get_post(post, fetching_comment, fetching_likes, save_location) for post in posts['data']]
-            posts = requests.get(posts['paging']['next']).json()
-        except KeyError:
-            break
-    
-    
-    
-def get_access_token(client_id, client_secret):
-    oauth_args = dict(client_id = client_id,
-                      client_secret = client_secret,
-                      grant_type = "client_credentials")
-    oauth_curl_url = "https://graph.facebook.com/oauth/access_token?client_id=%s&client_secret=%s&grant_type=%s"
-    oauth_request = oauth_curl_url % (oauth_args['client_id'], oauth_args['client_secret'], oauth_args['grant_type'])
-    response = requests.get(oauth_request)
-    print("generating access token finished")
-    return response.text.split("=")[1]
     
 
 
 if __name__ == "__main__": 
     
+    stop_datetime = "2014-01-01 00:00:00"
+    os.environ['TZ'] = ':Asia/Seoul'; time.tzset()       #time zone setting
+    
     # 0. getting access token of FB
     access_token = get_access_token(client_id = "325346580991946", 
                                     client_secret = "3bb9cb45ec5226411cf05b7f976e1d9d")     #app id, app secret
-    target = "sbs8news"
     graph = facebook.GraphAPI(access_token)
-    
-    
-    # 1.fetching profile information of specific open account
+    target = "sbs8news"
     profile = graph.get_object(target)
-    
-    
-    """ 2. fetching all posts in the wall
-        default return value = {object_id, created_time, message, share_cnt} + [c_usr_id, c_usrname, comment, ] + [l_usr_id, l_usrname]
-    """
-    get_all_posts(graph = graph, fetching_comments = True, fetching_likes = True,
-                  save = "some storing location")    # True = fetching not only posts but comments
-    
-    
-    # 3. fetching pages the target likes
-    
-    # 4. fetching FB group profile, members
-    
-    # 5. fetching all people who like the target
 
+    # 1. mysql server connection setting(amazon RDS)
+    cfg_dict = dict(host='sbsnews.crsrypkw7bkm.ap-northeast-1.rds.amazonaws.com', usr='root', pwd='hqam30018', 
+                    db='FACEBOOK')
+    
+    (con, cur) = easy_mysql(cfg_dict)
+    cur.execute("SET NAMES latin1")         # couldn't changed RDS's character_set_server....
     
     
+    # 2. getting the first FACEBOOK post data(the topmost pages on the wall)
+    (n, c_dir, l_dir) = (0, 1, 1)
+    posts = graph.get_connections(profile['id'], 'posts')
     
+    while True:
+        try:
+            for post in posts['data']:
+                if post['type'] == 'status':
+                    continue
+                n += 1
+                p_dict = get_post(post, comments=True, likes=True)
+                
+                if str(p_dict['p_datetime']).startswith("2013") == True:
+                    print(str(p_dict['p_datetime']))
+                    print("fetched all posts until 2014-01-01")
+                    exit()
+                
+                field_tuple = ('page_id', 'p_id', 'p_datetime', 'p_type', 'p_title', 'p_message', 'share_cnt', 'status_type', 'is_share', 'p_link', 'last_update')
+                sql = "INSERT IGNORE INTO post(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES" % field_tuple
+                sql += "(%d, %d, '%s', '%s', '%s', '%s', %d, '%s', %d, '%s', '%s');"
+                var_tuple = tuple()
+                for f in field_tuple:
+                    var_tuple += (p_dict[f],)
+                insert_mysql(cur, sql, var_tuple)
+                con.commit()
+                
+                if n%150 == 0:
+                    c_dir += 1
+                if n%150 == 0:
+                    l_dir += 1
+                root_path = "/home/ubuntu/150108_result/"
+                
+                if p_dict['comments'] != "not exist" and str(p_dict['p_datetime'])[:19] > "2015-01-07 02:00:00":
+                    path = root_path + "comments/" + str(c_dir)
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+                    filename = path + "/" + str(p_dict['p_id']) + ".json"
+                    with open(filename, "w") as fp:
+                        json.dump(p_dict['comments'], fp)
+                
+                if p_dict['likes'] != "not exist" and str(p_dict['p_datetime'])[:19] > "2015-01-07 02:00:00":
+                    path = root_path + "likes/" + str(l_dir)
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+                    filename = path + "/" + str(p_dict['p_id']) + ".json"
+                    with open(filename, "w") as fp:
+                        json.dump(p_dict['likes'], fp)
+                    
+                print("finish post %i" % p_dict['p_id'])
+
+            posts = requests.get(posts['paging']['next']).json()
+        except KeyError:
+            print(posts)
+            break
     
-    
+    print("fetching all post finished")
     
     
